@@ -1,0 +1,47 @@
+{
+  "name": "@open-kerno/commons",
+  "version": "1.0.0",
+  "description": "📦 Shared core utilities, base configurations, and essential building blocks for open-kerno projects.",
+  "homepage": "https://github.com/open-kerno/commons#readme",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -rf ./lib && ./node_modules/typescript/bin/tsc -p tsconfig.build.json && cp -rf package.json lib && rm -rf ./lib/tsconfig.tsbuildinfo",
+    "linter-fix": "npm run linter -- --fix && prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "linter": "eslint \"{src,apps,libs,tests}/**/*.ts\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "flat": "^6.0.1",
+    "logfmt": "^1.4.0",
+    "maskdata": "^1.2.0",
+    "verror": "^1.10.1",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@types/flat": "^5.0.5",
+    "@types/logfmt": "^1.2.6",
+    "@types/verror": "^1.10.11",
+    "@types/winston": "^2.4.4",
+    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/parser": "^8.59.4",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-kerno/commons.git"
+  },
+  "bugs": {
+    "url": "https://github.com/open-kerno/commons/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
