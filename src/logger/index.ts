@@ -13,7 +13,7 @@ import { VError } from 'verror';
 import { createLogger, format, transports } from 'winston';
 
 const { combine, timestamp, label, printf, colorize, json } = format;
-import * as maskData from 'maskdata';
+import MaskData from 'maskdata';
 
 const LOG_FORMAT = process.env.LOG_FORMAT;
 const LOG_MAX_DEPTH = process.env.LOG_MAX_DEPTH;
@@ -48,7 +48,7 @@ const maskRequestData = (input: JSON, maskedFields: string[]) => {
   const maskJSONOptions = {
     genericStrings: [{ fields: maskedFields, config: { maskWith: maskSymbol } }],
   };
-  return maskData.maskJSON2(input as object, maskJSONOptions);
+  return MaskData.maskJSON2(input, maskJSONOptions);
 };
 
 interface Logger {
