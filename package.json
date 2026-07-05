@@ -14,8 +14,8 @@
   "license": "MIT",
   "scripts": {
     "build": "rm -rf ./lib && ./node_modules/typescript/bin/tsc -p tsconfig.build.json && cp -rf package.json lib && rm -rf ./lib/tsconfig.tsbuildinfo",
-    "linter-fix": "npm run linter -- --fix && prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "linter": "eslint \"{src,apps,libs,tests}/**/*.ts\"",
+    "linter-fix": "npm run linter -- --fix && prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"website/**/*.ts\"",
+    "linter": "eslint \"{src,apps,libs,tests, website}/**/*.ts\"",
     "test": "LOG_SILENT=true jest --coverage --logHeapUsage"
   },
   "dependencies": {
