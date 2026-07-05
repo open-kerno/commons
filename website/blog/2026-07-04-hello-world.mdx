@@ -1,0 +1,37 @@
+---
+slug: hello-world
+title: Welcome to Open Kerno Commons
+authors:
+  name: Open Kerno Team
+  title: Maintainers
+  url: https://github.com/open-kerno
+  image_url: https://avatars.githubusercontent.com/u/299951247?s=400&v=4
+tags: [release, typescript, nodejs]
+date: 2026-07-04
+---
+
+We are happy to introduce `@open-kerno/commons` — a shared TypeScript utility library for Node.js services.
+
+<!-- truncate -->
+
+## What is it?
+
+`@open-kerno/commons` is a collection of well-tested, typed modules designed to solve common problems across backend services. Instead of copying the same utilities from project to project, you can install this package and start using them right away.
+
+## What is included?
+
+- **HTTP** — `HttpStatusCode` and `HttpMethod` enums covering all standard codes and methods.
+- **Errors** — Typed error classes (`ServerError`, `BadRequestError`, `InternalServerError`, `DatabaseConnectionError`) with HTTP status codes and optional error payloads.
+- **Collections** — `createMapFromArray` and `createSetFromArray` for fast lookups.
+- **Math** — `prorate` for proportional distribution and `roundWithPrecision` for accurate rounding.
+- **Logger** — A structured logger with field masking, built on Winston.
+- **Infrastructure** — A PostgreSQL connection pool wrapper with session and transaction helpers.
+- **Object** — `encodeJSON` for safe JSON parsing with typed fallbacks.
+
+## Getting started
+
+```bash
+npm install @open-kerno/commons
+```
+
+Check the [documentation](/docs) for the full API reference.
