@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="atom.xsl"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://open-kerno.github.io/commons/blog</id>
+    <title>Open Kerno Commons Blog</title>
+    <updated>2026-07-04T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://open-kerno.github.io/commons/blog"/>
+    <subtitle>Open Kerno Commons Blog</subtitle>
+    <icon>https://open-kerno.github.io/commons/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Welcome to Open Kerno Commons]]></title>
+        <id>https://open-kerno.github.io/commons/blog/hello-world</id>
+        <link href="https://open-kerno.github.io/commons/blog/hello-world"/>
+        <updated>2026-07-04T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[We are happy to introduce @open-kerno/commons — a shared TypeScript utility library for Node.js services.]]></summary>
+        <content type="html"><![CDATA[<p>We are happy to introduce <code>@open-kerno/commons</code> — a shared TypeScript utility library for Node.js services.</p>
+<!-- -->
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="what-is-it">What is it?<a href="https://open-kerno.github.io/commons/blog/hello-world#what-is-it" class="hash-link" aria-label="Direct link to What is it?" title="Direct link to What is it?" translate="no">​</a></h2>
+<p><code>@open-kerno/commons</code> is a collection of well-tested, typed modules designed to solve common problems across backend services. Instead of copying the same utilities from project to project, you can install this package and start using them right away.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="what-is-included">What is included?<a href="https://open-kerno.github.io/commons/blog/hello-world#what-is-included" class="hash-link" aria-label="Direct link to What is included?" title="Direct link to What is included?" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>HTTP</strong> — <code>HttpStatusCode</code> and <code>HttpMethod</code> enums covering all standard codes and methods.</li>
+<li class=""><strong>Errors</strong> — Typed error classes (<code>ServerError</code>, <code>BadRequestError</code>, <code>InternalServerError</code>, <code>DatabaseConnectionError</code>) with HTTP status codes and optional error payloads.</li>
+<li class=""><strong>Collections</strong> — <code>createMapFromArray</code> and <code>createSetFromArray</code> for fast lookups.</li>
+<li class=""><strong>Math</strong> — <code>prorate</code> for proportional distribution and <code>roundWithPrecision</code> for accurate rounding.</li>
+<li class=""><strong>Logger</strong> — A structured logger with field masking, built on Winston.</li>
+<li class=""><strong>Infrastructure</strong> — A PostgreSQL connection pool wrapper with session and transaction helpers.</li>
+<li class=""><strong>Object</strong> — <code>encodeJSON</code> for safe JSON parsing with typed fallbacks.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="getting-started">Getting started<a href="https://open-kerno.github.io/commons/blog/hello-world#getting-started" class="hash-link" aria-label="Direct link to Getting started" title="Direct link to Getting started" translate="no">​</a></h2>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#393A34"><span class="token plain">npm install @open-kerno/commons</span><br></div></code></pre></div></div>
+<p>Check the <a class="" href="https://open-kerno.github.io/commons/docs">documentation</a> for the full API reference.</p>]]></content>
+        <author>
+            <name>Open Kerno Team</name>
+            <uri>https://github.com/open-kerno</uri>
+        </author>
+        <category label="release" term="release"/>
+        <category label="typescript" term="typescript"/>
+        <category label="nodejs" term="nodejs"/>
+    </entry>
+</feed>
