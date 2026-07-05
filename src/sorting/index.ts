@@ -1,3 +1,5 @@
+import { isNil } from 'es-toolkit';
+
 export enum SortOrder {
   Asc = 'asc',
   Desc = 'desc',
@@ -13,14 +15,14 @@ export interface SortCriterion<T> {
 export const sortByCriteria = <T>(items: T[], criteria: Array<SortCriterion<T>>): T[] => {
   const sortedItems = [...items];
 
-  sortedItems.sort((a, b) => {
+  sortedItems.sort((a: T, b: T) => {
     for (const { callback, sortOrder = SortOrder.Asc } of criteria) {
       const valueA = callback(a);
       const valueB = callback(b);
 
       if (valueA === valueB) continue;
-      if (valueA == null) return sortOrder === SortOrder.Asc ? 1 : -1;
-      if (valueB == null) return sortOrder === SortOrder.Asc ? -1 : 1;
+      if (isNil(valueA)) return sortOrder === SortOrder.Asc ? 1 : -1;
+      if (isNil(valueB)) return sortOrder === SortOrder.Asc ? -1 : 1;
 
       if (typeof valueA === 'string' && typeof valueB === 'string') {
         const compareResult = valueA.localeCompare(valueB);
