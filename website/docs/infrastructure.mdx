@@ -1,0 +1,144 @@
+---
+sidebar_position: 7
+---
+
+# Infrastructure
+
+The `infrastructure` module provides a PostgreSQL connection pool wrapper built on top of [node-postgres (`pg`)](https://node-postgres.com/). It simplifies session management, transactions, and configuration loading from environment variables.
+
+## Import
+
+```ts
+import wrapper from '@open-kerno/commons/infrastructure/database/postgres';
+```
+
+---
+
+## `wrapper(configName)`
+
+A factory function that creates a `PostgreSQL` client. It reads all connection parameters from environment variables using a prefix derived from `configName`.
+
+### Signature
+
+```ts
+function wrapper(configName: string): PostgreSQL
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `configName` | `string` | A name used as a prefix to read env vars (case-insensitive, converted to uppercase) |
+
+### Returns
+
+A `PostgreSQL` object with the following methods:
+
+```ts
+interface PostgreSQL {
+  newSession:   () => Promise<Session>;
+  closeSession: (session: Session) => void;
+  onSession:    <T>(operation: (session: Session) => Promise<T>) => Promise<T>;
+  onTransaction:<T>(operation: (session: Session) => Promise<T>) => Promise<T>;
+  closePool:    () => Promise<void>;
+}
+```
+
+`Session` is a `PoolClient` from `pg`.
+
+---
+
+## Environment Variables
+
+Given `configName = 'mydb'`, the wrapper reads the following variables:
+
+| Variable | Default | Description |
+|---|---|---|
+| `MYDB_HOST` | `localhost` | Database host |
+| `MYDB_PORT` | `25432` | Database port |
+| `MYDB_DBNAME` | `''` | Database name |
+| `MYDB_USER` | `''` | Database user |
+| `MYDB_PASSWORD` | `''` | Database password |
+| `MYDB_MIN` | `20` | Minimum pool connections |
+| `MYDB_MAX` | `200` | Maximum pool connections |
+| `MYDB_IDLE_TIMEOUT` | `30000` | Idle connection timeout (ms) |
+| `MYDB_CONNECTION_TIMEOUT` | `5000` | Connection timeout (ms) |
+| `MYDB_STATEMENT_TIMEOUT` | `45000` | Statement timeout (ms) |
+
+---
+
+## Methods
+
+### `newSession()`
+
+Acquires a new client from the pool.
+
+```ts
+const session = await db.newSession();
+```
+
+### `closeSession(session)`
+
+Releases a client back to the pool.
+
+```ts
+db.closeSession(session);
+```
+
+### `onSession(operation)`
+
+Acquires a session, runs the operation, and always releases the session at the end — even if the operation throws.
+
+```ts
+const users = await db.onSession(async (session) => {
+  const result = await session.query('SELECT * FROM users');
+  return result.rows;
+});
+```
+
+### `onTransaction(operation)`
+
+Acquires a session, issues a `BEGIN`, runs the operation, and issues a `COMMIT` on success or a `ROLLBACK` on failure. Always releases the session at the end.
+
+```ts
+const newUser = await db.onTransaction(async (session) => {
+  const result = await session.query(
+    'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
+    ['Alice', 'alice@example.com']
+  );
+  return result.rows[0];
+});
+```
+
+### `closePool()`
+
+Drains all connections and closes the pool. Call this during application shutdown.
+
+```ts
+await db.closePool();
+```
+
+---
+
+## Example
+
+```ts
+import wrapper from '@open-kerno/commons/infrastructure/database/postgres';
+
+// Reads env vars with prefix MAIN_DB_*
+const db = wrapper('main_db');
+
+// Simple query
+const getUser = (id: number) =>
+  db.onSession(async (session) => {
+    const res = await session.query('SELECT * FROM users WHERE id = $1', [id]);
+    return res.rows[0] ?? null;
+  });
+
+// Transaction
+const transferCredits = (fromId: number, toId: number, amount: number) =>
+  db.onTransaction(async (session) => {
+    await session.query('UPDATE accounts SET credits = credits - $1 WHERE id = $2', [amount, fromId]);
+    await session.query('UPDATE accounts SET credits = credits + $1 WHERE id = $2', [amount, toId]);
+  });
+```

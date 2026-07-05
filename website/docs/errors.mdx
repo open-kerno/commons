@@ -1,0 +1,144 @@
+---
+sidebar_position: 4
+---
+
+# Errors
+
+The `errors` module provides typed error classes that extend the native `Error`. They carry an HTTP status code and an optional typed payload, making it easy to return consistent error responses across services.
+
+---
+
+## HTTP Errors
+
+### Import
+
+```ts
+import { ServerError, BadRequestError, InternalServerError } from '@open-kerno/commons/errors/http';
+```
+
+---
+
+### `ServerError<T>`
+
+The base error class. All other HTTP error classes extend it.
+
+#### Constructor
+
+```ts
+new ServerError(message: string, statusCode?: HttpStatusCode, errors?: T)
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `message` | `string` | — | A human-readable error message |
+| `statusCode` | `HttpStatusCode` | `INTERNAL_ERROR` | The HTTP status code |
+| `errors` | `T` | `undefined` | An optional payload with error details |
+
+#### Properties
+
+| Property | Type | Description |
+|---|---|---|
+| `status` | `HttpStatusCode` | The HTTP status code |
+| `errors` | `T \| undefined` | The error details payload |
+
+#### Example
+
+```ts
+import { ServerError } from '@open-kerno/commons/errors/http';
+import { HttpStatusCode } from '@open-kerno/commons/http';
+
+throw new ServerError('Resource not found', HttpStatusCode.NOT_FOUND);
+```
+
+---
+
+### `BadRequestError<T>`
+
+A pre-configured `ServerError` with status `400 BAD_REQUEST`. Use it when the client sends invalid or malformed input.
+
+#### Constructor
+
+```ts
+new BadRequestError(message: string, errors?: T)
+```
+
+#### Example
+
+```ts
+import { BadRequestError } from '@open-kerno/commons/errors/http';
+
+type ValidationErrors = { field: string; reason: string }[];
+
+throw new BadRequestError<ValidationErrors>('Validation failed', [
+  { field: 'email', reason: 'Invalid format' },
+  { field: 'age', reason: 'Must be a positive number' },
+]);
+```
+
+---
+
+### `InternalServerError<T>`
+
+A pre-configured `ServerError` with status `500 INTERNAL_ERROR`. Use it for unexpected failures on the server side.
+
+#### Constructor
+
+```ts
+new InternalServerError(message: string, errors?: T)
+```
+
+#### Example
+
+```ts
+import { InternalServerError } from '@open-kerno/commons/errors/http';
+
+throw new InternalServerError('An unexpected error occurred');
+```
+
+---
+
+## Database Errors
+
+### Import
+
+```ts
+import { DatabaseConnectionError } from '@open-kerno/commons/errors/database';
+```
+
+---
+
+### `DatabaseConnectionError<T>`
+
+A `ServerError` with status `500 INTERNAL_ERROR` that signals a database connection failure. It is useful for separating database-layer errors from generic server errors.
+
+#### Constructor
+
+```ts
+new DatabaseConnectionError(message: string, errors?: T)
+```
+
+#### Example
+
+```ts
+import { DatabaseConnectionError } from '@open-kerno/commons/errors/database';
+
+try {
+  await db.connect();
+} catch (err) {
+  throw new DatabaseConnectionError('Could not connect to the database', { cause: err });
+}
+```
+
+---
+
+## Error Hierarchy
+
+```
+Error
+└── ServerError
+    ├── BadRequestError       (status 400)
+    ├── InternalServerError   (status 500)
+    └── DatabaseConnectionError (status 500)
+```
+
+All classes are generic (`<T>`) so the `errors` payload is fully typed.

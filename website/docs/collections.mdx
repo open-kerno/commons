@@ -1,0 +1,91 @@
+---
+sidebar_position: 2
+---
+
+# Collections
+
+The `collections` module provides utility functions to convert arrays into `Map` and `Set` data structures with a custom key or value selector.
+
+## Import
+
+```ts
+import { createMapFromArray, createSetFromArray } from '@open-kerno/commons/collections';
+```
+
+---
+
+## `createMapFromArray`
+
+Converts an array into a `Map`, using a function to extract the key from each item.
+
+### Signature
+
+```ts
+function createMapFromArray<T, K>(items: T[], getKey: (item: T) => K): Map<K, T>
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `items` | `T[]` | The source array |
+| `getKey` | `(item: T) => K` | A function that returns the map key for each item |
+
+### Returns
+
+A `Map<K, T>` where each key maps to the original item.
+
+### Example
+
+```ts
+import { createMapFromArray } from '@open-kerno/commons/collections';
+
+const users = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+];
+
+const userMap = createMapFromArray(users, (user) => user.id);
+
+console.log(userMap.get(1)); // { id: 1, name: 'Alice' }
+console.log(userMap.get(2)); // { id: 2, name: 'Bob' }
+```
+
+---
+
+## `createSetFromArray`
+
+Converts an array into a `Set` by extracting a value from each item.
+
+### Signature
+
+```ts
+function createSetFromArray<T, V>(items: T[], getValue: (item: T) => V): Set<V>
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `items` | `T[]` | The source array |
+| `getValue` | `(item: T) => V` | A function that returns the set value for each item |
+
+### Returns
+
+A `Set<V>` containing the extracted values.
+
+### Example
+
+```ts
+import { createSetFromArray } from '@open-kerno/commons/collections';
+
+const orders = [
+  { id: 10, status: 'pending' },
+  { id: 11, status: 'shipped' },
+  { id: 12, status: 'pending' },
+];
+
+const statuses = createSetFromArray(orders, (order) => order.status);
+
+console.log(statuses); // Set { 'pending', 'shipped' }
+```

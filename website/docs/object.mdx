@@ -1,0 +1,101 @@
+---
+sidebar_position: 8
+---
+
+# Object
+
+The `object` module provides utilities for working with JSON data safely.
+
+## Import
+
+```ts
+import { encodeJSON } from '@open-kerno/commons/object';
+```
+
+---
+
+## `encodeJSON`
+
+Parses a JSON string into a typed value. If parsing fails and a `fallback` is provided, it returns the fallback. If no fallback is given, it throws a `JSON_DECODING_ERROR`.
+
+### Signature
+
+```ts
+function encodeJSON<T>(params: EncodeJSONParams<T>): T
+```
+
+### Type
+
+```ts
+interface EncodeJSONParams<T> {
+  jsonString: string;
+  fallback?: T;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `jsonString` | `string` | The JSON string to parse |
+| `fallback` | `T` (optional) | A value to return if parsing fails |
+
+### Returns
+
+The parsed value of type `T`.
+
+### Throws
+
+Throws `new Error('JSON_DECODING_ERROR')` if the string is invalid JSON and no `fallback` is provided.
+
+---
+
+## Examples
+
+### Happy path
+
+```ts
+import { encodeJSON } from '@open-kerno/commons/object';
+
+const user = encodeJSON<{ id: number; name: string }>({
+  jsonString: '{"id": 1, "name": "Alice"}',
+});
+
+console.log(user.name); // 'Alice'
+```
+
+### With a fallback
+
+```ts
+const config = encodeJSON<{ timeout: number }>({
+  jsonString: 'not valid json',
+  fallback: { timeout: 5000 },
+});
+
+console.log(config.timeout); // 5000
+```
+
+### Without a fallback (throws)
+
+```ts
+// This will throw Error('JSON_DECODING_ERROR')
+encodeJSON({ jsonString: 'not valid json' });
+```
+
+---
+
+## Use Case: Reading config from environment variables
+
+```ts
+import { encodeJSON } from '@open-kerno/commons/object';
+
+interface FeatureFlags {
+  enableBeta: boolean;
+  maxRetries: number;
+}
+
+const flags = encodeJSON<FeatureFlags>({
+  jsonString: process.env.FEATURE_FLAGS ?? '{}',
+  fallback: { enableBeta: false, maxRetries: 3 },
+});
+```

@@ -1,0 +1,122 @@
+---
+sidebar_position: 6
+---
+
+# Logger
+
+The `logger` module provides a structured logger built on top of [Winston](https://github.com/winstonjs/winston). It supports `logfmt` and `JSON` output formats, configurable log levels, and field masking for sensitive data.
+
+## Import
+
+```ts
+import logger from '@open-kerno/commons/logger';
+```
+
+---
+
+## `logger(tag, level?)`
+
+A factory function that returns a tagged logger instance.
+
+### Signature
+
+```ts
+function logger(tag: string, loggerLevel?: string): Logger
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tag` | `string` | A label added to every log line to identify the source (e.g. `'auth-service'`) |
+| `loggerLevel` | `string` | Optional log level override. Falls back to `LOG_LEVEL` env var, then `'debug'` |
+
+### Returns
+
+A `Logger` object with three methods:
+
+```ts
+interface Logger {
+  debug: (message: string, data?: any, maskedFields?: string[]) => void;
+  info:  (message: string, data?: any, maskedFields?: string[]) => void;
+  error: (message: string, err: any, data?: any, maskedFields?: string[]) => void;
+}
+```
+
+---
+
+## Methods
+
+### `log.info(message, data?, maskedFields?)`
+
+Logs an informational message.
+
+```ts
+log.info('USER_CREATED', { userId: '123', email: 'user@example.com' });
+```
+
+### `log.debug(message, data?, maskedFields?)`
+
+Logs a debug message. Useful during development.
+
+```ts
+log.debug('CACHE_MISS', { key: 'user:123' });
+```
+
+### `log.error(message, err, data?, maskedFields?)`
+
+Logs an error message with the full stack trace.
+
+```ts
+log.error('DB_QUERY_FAILED', err, { query: 'SELECT * FROM users' });
+```
+
+---
+
+## Field Masking
+
+Any method accepts an optional `maskedFields` array. Fields in that list are replaced with the mask symbol before logging. This is important for avoiding accidental logging of passwords, tokens, or other sensitive data.
+
+```ts
+const log = logger('payments');
+
+log.info('PAYMENT_INITIATED', { amount: 100, cardNumber: '4111111111111111' }, ['cardNumber']);
+// cardNumber is replaced with '***...'
+```
+
+---
+
+## Environment Variables
+
+The logger behavior can be configured through environment variables:
+
+| Variable | Default | Description |
+|---|---|---|
+| `LOG_FORMAT` | `logfmt` | Output format: `logfmt` or `json` |
+| `LOG_LEVEL` | `debug` | Minimum log level: `debug`, `info`, `warn`, `error` |
+| `LOG_SILENT` | `false` | Set to `true` to suppress all output (useful in tests) |
+| `LOG_MAX_DEPTH` | `3` | Max depth for object flattening in logfmt format |
+| `LOG_MASK_SYMBOL` | `*` | Character used to mask sensitive fields |
+
+---
+
+## Example
+
+```ts
+import logger from '@open-kerno/commons/logger';
+
+const log = logger('user-service');
+
+const createUser = async (data: CreateUserDTO) => {
+  log.info('CREATE_USER_START', data, ['password']);
+
+  try {
+    const user = await db.insert(data);
+    log.info('CREATE_USER_SUCCESS', { userId: user.id });
+    return user;
+  } catch (err) {
+    log.error('CREATE_USER_FAILED', err, data, ['password']);
+    throw err;
+  }
+};
+```

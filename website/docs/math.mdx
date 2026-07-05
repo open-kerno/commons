@@ -1,0 +1,142 @@
+---
+sidebar_position: 5
+---
+
+# Math
+
+The `math` module provides two sub-modules: `distribution` for proportional value allocation, and `rounding` for precision-aware number rounding.
+
+---
+
+## Distribution
+
+### Import
+
+```ts
+import { prorate } from '@open-kerno/commons/math/distribution';
+```
+
+### `prorate`
+
+Distributes an amount across a list of items proportionally, based on each item's `value` property. The last item always receives the remaining amount to avoid floating-point drift.
+
+#### Types
+
+```ts
+interface Allocable {
+  value: number;
+}
+
+type Prorated<T> = T & {
+  proratedValue: number;
+  percentage: number;
+};
+
+interface ProrateOptions<T extends Allocable> {
+  items: T[];
+  amountToDistribute: number;
+  throwOnError?: boolean;
+}
+```
+
+#### Signature
+
+```ts
+function prorate<T extends Allocable>(options: ProrateOptions<T>): Prorated<T>[]
+```
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `items` | `T[]` | — | Array of items, each must have a `value: number` field |
+| `amountToDistribute` | `number` | — | The total amount to distribute |
+| `throwOnError` | `boolean` | `false` | If `true`, throws when items are empty, total is zero, or any value is negative |
+
+#### Returns
+
+An array of the original items, each extended with:
+- `proratedValue` — the allocated amount for that item
+- `percentage` — the proportion used (between 0 and 1)
+
+Returns an empty array when the input is invalid and `throwOnError` is `false`.
+
+#### Example
+
+```ts
+import { prorate } from '@open-kerno/commons/math/distribution';
+
+const items = [
+  { id: 'A', value: 30 },
+  { id: 'B', value: 20 },
+  { id: 'C', value: 50 },
+];
+
+const result = prorate({ items, amountToDistribute: 1000 });
+
+// result:
+// [
+//   { id: 'A', value: 30, percentage: 0.3, proratedValue: 300 },
+//   { id: 'B', value: 20, percentage: 0.2, proratedValue: 200 },
+//   { id: 'C', value: 50, percentage: 0.5, proratedValue: 500 },
+// ]
+```
+
+#### Edge Cases
+
+```ts
+// Empty array → returns []
+prorate({ items: [], amountToDistribute: 100 }); // []
+
+// Total value is zero → returns [] (or throws if throwOnError is true)
+prorate({ items: [{ value: 0 }], amountToDistribute: 100 }); // []
+
+// Negative values → returns [] (or throws if throwOnError is true)
+prorate({ items: [{ value: -10 }], amountToDistribute: 100 }); // []
+```
+
+---
+
+## Rounding
+
+### Import
+
+```ts
+import { roundWithPrecision } from '@open-kerno/commons/math/rounding';
+```
+
+### `roundWithPrecision`
+
+Rounds a number to a specific number of decimal places, using `Number.EPSILON` to avoid floating-point inaccuracies.
+
+#### Signature
+
+```ts
+function roundWithPrecision(options: RoundingOptions): number
+```
+
+#### Type
+
+```ts
+interface RoundingOptions {
+  value: number;
+  precision: number;
+}
+```
+
+#### Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `value` | `number` | The number to round |
+| `precision` | `number` | The number of decimal places |
+
+#### Example
+
+```ts
+import { roundWithPrecision } from '@open-kerno/commons/math/rounding';
+
+roundWithPrecision({ value: 1.005, precision: 2 }); // 1.01
+roundWithPrecision({ value: 3.14159, precision: 3 }); // 3.142
+roundWithPrecision({ value: 100, precision: 0 });    // 100
+```
