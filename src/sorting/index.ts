@@ -1,4 +1,4 @@
-import { isNil } from 'es-toolkit';
+import { isNil, isString } from 'es-toolkit';
 
 export enum SortOrder {
   Asc = 'asc',
@@ -24,7 +24,7 @@ export const sortByCriteria = <T>(items: T[], criteria: Array<SortCriterion<T>>)
       if (isNil(valueA)) return sortOrder === SortOrder.Asc ? 1 : -1;
       if (isNil(valueB)) return sortOrder === SortOrder.Asc ? -1 : 1;
 
-      if (typeof valueA === 'string' && typeof valueB === 'string') {
+      if (isString(valueA) && isString(valueB)) {
         const compareResult = valueA.localeCompare(valueB);
         if (compareResult !== 0) return sortOrder === SortOrder.Asc ? compareResult : -compareResult;
         continue;
