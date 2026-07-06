@@ -1,7 +1,7 @@
 import { BadRequestError } from '../../errors/http';
 
 export interface Allocable {
-  value: number;
+  weight: number;
 }
 
 export type Prorated<T> = T & {
@@ -24,7 +24,7 @@ export const prorate = <T extends Allocable>({
     return [];
   }
 
-  const totalBaseValue = items.reduce((sum, item) => sum + item.value, 0);
+  const totalBaseValue = items.reduce((sum, item) => sum + item.weight, 0);
 
   if (totalBaseValue <= 0) {
     if (throwOnError) {
@@ -33,7 +33,7 @@ export const prorate = <T extends Allocable>({
     return [];
   }
 
-  if (items.some((item) => item.value < 0)) {
+  if (items.some((item) => item.weight < 0)) {
     if (throwOnError) {
       throw new Error('Negative values are not allowed in the items to be prorated.');
     }
@@ -46,7 +46,7 @@ export const prorate = <T extends Allocable>({
   return items.map((item, index) => {
     const isLastItem = index === items.length - 1;
 
-    const percentage = isLastItem ? remainingPercentage : item.value / totalBaseValue;
+    const percentage = isLastItem ? remainingPercentage : item.weight / totalBaseValue;
     const proratedValue = isLastItem ? remainingAmount : percentage * amountToDistribute;
 
     remainingPercentage -= percentage;

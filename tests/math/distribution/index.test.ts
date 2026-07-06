@@ -122,8 +122,8 @@ describe('given a prorate function', () => {
     {
       description: 'should preserve all original item properties alongside the prorated fields',
       items: [
-        { id: 1, label: 'alpha', value: 60 },
-        { id: 2, label: 'beta', value: 40 },
+        { id: 1, label: 'alpha', weight: 60 },
+        { id: 2, label: 'beta', weight: 40 },
       ] as AllocableRecord[],
       amountToDistribute: 100,
       expected: [
@@ -134,9 +134,9 @@ describe('given a prorate function', () => {
     {
       description: 'should preserve nested-like string properties on items',
       items: [
-        { id: 1, department: 'IT', costCenter: 'CC-001', value: 10 },
-        { id: 2, department: 'Marketing', costCenter: 'CC-002', value: 20 },
-        { id: 3, department: 'Sales', costCenter: 'CC-003', value: 20 },
+        { id: 1, department: 'IT', costCenter: 'CC-001', weight: 10 },
+        { id: 2, department: 'Marketing', costCenter: 'CC-002', weight: 20 },
+        { id: 3, department: 'Sales', costCenter: 'CC-003', weight: 20 },
       ] as AllocableRecord[],
       amountToDistribute: 100,
       expected: [

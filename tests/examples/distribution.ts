@@ -4,7 +4,7 @@ import { Allocable, Weighted } from '../../src/math/distribution';
 
 export const allocableItemExample = ({ id = 1, value = 10 } = {}): { id: number } & Allocable => ({
   id,
-  value,
+  weight: value,
 });
 
 export const weightedItemExample = ({

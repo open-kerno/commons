@@ -18,13 +18,13 @@ import { prorate } from '@open-kerno/commons/math/distribution';
 
 ### `prorate`
 
-Distributes an amount across a list of items proportionally, based on each item's `value` property. The last item always receives the remaining amount to avoid floating-point drift.
+Distributes an amount across a list of items proportionally, based on each item's `weight` property. The last item always receives the remaining amount to avoid floating-point drift.
 
 #### Types
 
 ```ts
 interface Allocable {
-  value: number;
+  weight: number;
 }
 
 type Prorated<T> = T & {
@@ -49,9 +49,9 @@ function prorate<T extends Allocable>(options: ProrateOptions<T>): Prorated<T>[]
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | `T[]` | — | Array of items, each must have a `value: number` field |
+| `items` | `T[]` | — | Array of items, each must have a `weight: number` field |
 | `amountToDistribute` | `number` | — | The total amount to distribute |
-| `throwOnError` | `boolean` | `false` | If `true`, throws when items are empty, total is zero, or any value is negative |
+| `throwOnError` | `boolean` | `false` | If `true`, throws when items are empty, total is zero, or any weight is negative |
 
 #### Returns
 
@@ -67,18 +67,18 @@ Returns an empty array when the input is invalid and `throwOnError` is `false`.
 import { prorate } from '@open-kerno/commons/math/distribution';
 
 const items = [
-  { id: 'A', value: 30 },
-  { id: 'B', value: 20 },
-  { id: 'C', value: 50 },
+  { id: 'A', weight: 30 },
+  { id: 'B', weight: 20 },
+  { id: 'C', weight: 50 },
 ];
 
 const result = prorate({ items, amountToDistribute: 1000 });
 
 // result:
 // [
-//   { id: 'A', value: 30, percentage: 0.3, proratedValue: 300 },
-//   { id: 'B', value: 20, percentage: 0.2, proratedValue: 200 },
-//   { id: 'C', value: 50, percentage: 0.5, proratedValue: 500 },
+//   { id: 'A', weight: 30, percentage: 0.3, proratedValue: 300 },
+//   { id: 'B', weight: 20, percentage: 0.2, proratedValue: 200 },
+//   { id: 'C', weight: 50, percentage: 0.5, proratedValue: 500 },
 // ]
 ```
 
@@ -88,11 +88,11 @@ const result = prorate({ items, amountToDistribute: 1000 });
 // Empty array → returns []
 prorate({ items: [], amountToDistribute: 100 }); // []
 
-// Total value is zero → returns [] (or throws if throwOnError is true)
-prorate({ items: [{ value: 0 }], amountToDistribute: 100 }); // []
+// Total weight is zero → returns [] (or throws if throwOnError is true)
+prorate({ items: [{ weight: 0 }], amountToDistribute: 100 }); // []
 
-// Negative values → returns [] (or throws if throwOnError is true)
-prorate({ items: [{ value: -10 }], amountToDistribute: 100 }); // []
+// Negative weights → returns [] (or throws if throwOnError is true)
+prorate({ items: [{ weight: -10 }], amountToDistribute: 100 }); // []
 ```
 
 ### `proratePennies`
