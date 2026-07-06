@@ -69,4 +69,4 @@ Bug reports and feature requests are tracked on [GitHub Issues](https://github.c
 
 ## License
 
-[MIT](LICENSE) © Luis Miguel Báez
+[MIT](LICENSE) © Open Kerno
