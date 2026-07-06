@@ -22,7 +22,7 @@ it.each([
     jsonString: "{'key': 'value'}",
   },
 ])('$description', ({ jsonString }) => {
-  expect(() => encodeJSON({ jsonString, fallback: undefined })).toThrow(new Error('JSON_DECODING_ERROR'));
+  expect(() => encodeJSON({ jsonString, fallback: undefined })).toThrow(/^JSON_DECODING_ERROR/);
 });
 
 it.each([

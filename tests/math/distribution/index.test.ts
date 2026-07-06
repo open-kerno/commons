@@ -8,7 +8,7 @@ describe('given a prorate function', () => {
   describe.each([
     {
       description: 'should return an empty array when the items array is empty',
-      items: [] as ({ id: number; value: number } & Allocable)[],
+      items: [] as ({ id: number; weight: number } & Allocable)[],
       amountToDistribute: 100,
       throwOnError: false,
       expected: [],
@@ -18,7 +18,7 @@ describe('given a prorate function', () => {
       items: [allocableItemExample({ id: 1, value: 100 })],
       amountToDistribute: 200,
       throwOnError: false,
-      expected: [{ id: 1, value: 100, percentage: 1, proratedValue: 200 }],
+      expected: [{ id: 1, weight: 100, percentage: 1, proratedValue: 200 }],
     },
     {
       description: 'should split equally between two items with the same value',
@@ -26,8 +26,8 @@ describe('given a prorate function', () => {
       amountToDistribute: 100,
       throwOnError: false,
       expected: [
-        { id: 1, value: 50, percentage: 0.5, proratedValue: 50 },
-        { id: 2, value: 50, percentage: 0.5, proratedValue: 50 },
+        { id: 1, weight: 50, percentage: 0.5, proratedValue: 50 },
+        { id: 2, weight: 50, percentage: 0.5, proratedValue: 50 },
       ],
     },
     {
@@ -40,9 +40,9 @@ describe('given a prorate function', () => {
       amountToDistribute: 100,
       throwOnError: false,
       expected: [
-        { id: 1, value: 25, percentage: 0.25, proratedValue: 25 },
-        { id: 2, value: 25, percentage: 0.25, proratedValue: 25 },
-        { id: 3, value: 50, percentage: 0.5, proratedValue: 50 },
+        { id: 1, weight: 25, percentage: 0.25, proratedValue: 25 },
+        { id: 2, weight: 25, percentage: 0.25, proratedValue: 25 },
+        { id: 3, weight: 50, percentage: 0.5, proratedValue: 50 },
       ],
     },
     {
@@ -51,8 +51,8 @@ describe('given a prorate function', () => {
       amountToDistribute: 0,
       throwOnError: false,
       expected: [
-        { id: 1, value: 1, percentage: 0.5, proratedValue: 0 },
-        { id: 2, value: 1, percentage: 0.5, proratedValue: 0 },
+        { id: 1, weight: 1, percentage: 0.5, proratedValue: 0 },
+        { id: 2, weight: 1, percentage: 0.5, proratedValue: 0 },
       ],
     },
     {
@@ -61,8 +61,8 @@ describe('given a prorate function', () => {
       amountToDistribute: 50,
       throwOnError: false,
       expected: [
-        { id: 1, value: 0, percentage: 0, proratedValue: 0 },
-        { id: 2, value: 100, percentage: 1, proratedValue: 50 },
+        { id: 1, weight: 0, percentage: 0, proratedValue: 0 },
+        { id: 2, weight: 100, percentage: 1, proratedValue: 50 },
       ],
     },
     {
@@ -76,9 +76,9 @@ describe('given a prorate function', () => {
       amountToDistribute: 100,
       throwOnError: false,
       expected: [
-        { id: 1, value: 50, percentage: 0.5, proratedValue: 50 },
-        { id: 2, value: 25, percentage: 0.25, proratedValue: 25 },
-        { id: 3, value: 25, percentage: 0.25, proratedValue: 25 },
+        { id: 1, weight: 50, percentage: 0.5, proratedValue: 50 },
+        { id: 2, weight: 25, percentage: 0.25, proratedValue: 25 },
+        { id: 3, weight: 25, percentage: 0.25, proratedValue: 25 },
       ],
     },
     {
@@ -87,8 +87,8 @@ describe('given a prorate function', () => {
       amountToDistribute: 100,
       throwOnError: true,
       expected: [
-        { id: 1, value: 50, percentage: 0.5, proratedValue: 50 },
-        { id: 2, value: 50, percentage: 0.5, proratedValue: 50 },
+        { id: 1, weight: 50, percentage: 0.5, proratedValue: 50 },
+        { id: 2, weight: 50, percentage: 0.5, proratedValue: 50 },
       ],
     },
     {
@@ -97,8 +97,8 @@ describe('given a prorate function', () => {
       amountToDistribute: 1_000_000,
       throwOnError: false,
       expected: [
-        { id: 1, value: 1, percentage: 0.5, proratedValue: 500_000 },
-        { id: 2, value: 1, percentage: 0.5, proratedValue: 500_000 },
+        { id: 1, weight: 1, percentage: 0.5, proratedValue: 500_000 },
+        { id: 2, weight: 1, percentage: 0.5, proratedValue: 500_000 },
       ],
     },
     {
@@ -107,8 +107,8 @@ describe('given a prorate function', () => {
       amountToDistribute: -100,
       throwOnError: false,
       expected: [
-        { id: 1, value: 50, percentage: 0.5, proratedValue: -50 },
-        { id: 2, value: 50, percentage: 0.5, proratedValue: -50 },
+        { id: 1, weight: 50, percentage: 0.5, proratedValue: -50 },
+        { id: 2, weight: 50, percentage: 0.5, proratedValue: -50 },
       ],
     },
   ])('given valid or non-throwing inputs', ({ description, items, amountToDistribute, throwOnError, expected }) => {
@@ -127,8 +127,8 @@ describe('given a prorate function', () => {
       ] as AllocableRecord[],
       amountToDistribute: 100,
       expected: [
-        { id: 1, label: 'alpha', value: 60, percentage: 0.6, proratedValue: 60 },
-        { id: 2, label: 'beta', value: 40, percentage: 0.4, proratedValue: 40 },
+        { id: 1, label: 'alpha', weight: 60, percentage: 0.6, proratedValue: 60 },
+        { id: 2, label: 'beta', weight: 40, percentage: 0.4, proratedValue: 40 },
       ],
     },
     {
@@ -140,9 +140,9 @@ describe('given a prorate function', () => {
       ] as AllocableRecord[],
       amountToDistribute: 100,
       expected: [
-        { id: 1, department: 'IT', costCenter: 'CC-001', value: 10, percentage: 0.2, proratedValue: 20 },
-        { id: 2, department: 'Marketing', costCenter: 'CC-002', value: 20, percentage: 0.4, proratedValue: 40 },
-        { id: 3, department: 'Sales', costCenter: 'CC-003', value: 20, percentage: 0.4, proratedValue: 40 },
+        { id: 1, department: 'IT', costCenter: 'CC-001', weight: 10, percentage: 0.2, proratedValue: 20 },
+        { id: 2, department: 'Marketing', costCenter: 'CC-002', weight: 20, percentage: 0.4, proratedValue: 40 },
+        { id: 3, department: 'Sales', costCenter: 'CC-003', weight: 20, percentage: 0.4, proratedValue: 40 },
       ],
     },
   ])('given items with extra properties', ({ description, items, amountToDistribute, expected }) => {

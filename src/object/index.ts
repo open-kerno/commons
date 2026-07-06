@@ -9,9 +9,8 @@ export const encodeJSON = <T>({ jsonString, fallback }: EncodeJSONParams<T>): T 
   try {
     return JSON.parse(jsonString) as T;
   } catch (error) {
-    console.error(`Failed to decode JSON string:`, error);
     if (isUndefined(fallback)) {
-      throw new Error('JSON_DECODING_ERROR');
+      throw new Error(`JSON_DECODING_ERROR: ${error}`);
     }
     return fallback;
   }
