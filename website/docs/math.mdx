@@ -95,6 +95,87 @@ prorate({ items: [{ value: 0 }], amountToDistribute: 100 }); // []
 prorate({ items: [{ value: -10 }], amountToDistribute: 100 }); // []
 ```
 
+### `proratePennies`
+
+Distributes an amount across a list of items proportionally, based on each item's `weight` property, guaranteeing the results sum exactly to `amountToDistribute` at a given decimal `precision`. Unlike `prorate`, which lets the last item absorb any floating-point drift outright, `proratePennies` rounds every item to whole units first and, if that rounding would push the last item negative, reclaims the deficit one unit at a time from the items with the largest rounding error — so no item ever goes negative.
+
+#### Types
+
+```ts
+interface Weighted {
+  weight: number;
+}
+
+type PennyAllocated<T> = T & {
+  proratedValue: number;
+  percentage: number;
+};
+
+interface AllocatePenniesOptions<T extends Weighted> {
+  amountToDistribute: number;
+  items: T[];
+  precision?: number;
+  throwOnError?: boolean;
+}
+```
+
+#### Signature
+
+```ts
+function proratePennies<T extends Weighted>(options: AllocatePenniesOptions<T>): PennyAllocated<T>[]
+```
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `items` | `T[]` | — | Array of items, each must have a `weight: number` field |
+| `amountToDistribute` | `number` | — | The total amount to distribute |
+| `precision` | `number` | `12` | Number of decimal places the allocated amounts are rounded to |
+| `throwOnError` | `boolean` | `false` | If `true`, throws when items are empty, total weight is zero, or any weight is negative |
+
+#### Returns
+
+An array of the original items, each extended with:
+- `proratedValue` — the allocated amount for that item, rounded to `precision` decimal places
+- `percentage` — the proportion used (between 0 and 1)
+
+Returns an empty array when the input is invalid and `throwOnError` is `false`.
+
+#### Example
+
+```ts
+import { proratePennies } from '@open-kerno/commons/math/distribution';
+
+const items = [
+  { id: 'A', weight: 1 },
+  { id: 'B', weight: 1 },
+  { id: 'C', weight: 0 },
+];
+
+const result = proratePennies({ items, amountToDistribute: 0.05, precision: 2 });
+
+// result:
+// [
+//   { id: 'A', weight: 1, percentage: 0.5, proratedValue: 0.02 },
+//   { id: 'B', weight: 1, percentage: 0.5, proratedValue: 0.03 },
+//   { id: 'C', weight: 1, percentage: 0,   proratedValue: 0 },
+// ]
+```
+
+#### Edge Cases
+
+```ts
+// Empty array → returns []
+proratePennies({ items: [], amountToDistribute: 100 }); // []
+
+// Total weight is zero → returns [] (or throws if throwOnError is true)
+proratePennies({ items: [{ weight: 0 }], amountToDistribute: 100 }); // []
+
+// Negative weights → returns [] (or throws if throwOnError is true)
+proratePennies({ items: [{ weight: -10 }], amountToDistribute: 100 }); // []
+```
+
 ---
 
 ## Rounding
