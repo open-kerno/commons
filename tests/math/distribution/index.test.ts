@@ -1,5 +1,6 @@
-import { Allocable, prorate } from '../../../src/math/distribution';
-import { allocableItemExample } from '../../examples/distribution';
+import { BadRequestError } from '../../../src/errors/http';
+import { Allocable, prorate, proratePennies } from '../../../src/math/distribution';
+import { allocableItemExample, weightedItemExample } from '../../examples/distribution';
 
 type AllocableRecord = Allocable & Record<string, unknown>;
 
@@ -260,6 +261,168 @@ describe('given a prorate function', () => {
       const totalPercentage = result.reduce((sum, item) => sum + item.percentage, 0);
       expect(totalProratedValue).toBe(amountToDistribute);
       expect(totalPercentage).toBe(1);
+    });
+  });
+});
+
+describe('given a proratePennies function', () => {
+  describe.each([
+    {
+      description: 'should split the amount evenly between two items with equal weight',
+      amountToDistribute: 100,
+      items: [weightedItemExample({ id: 1, weight: 50 }), weightedItemExample({ id: 2, weight: 50 })],
+      precision: 6,
+      expected: [
+        { id: 1, weight: 50, percentage: 0.5, proratedValue: 50 },
+        { id: 2, weight: 50, percentage: 0.5, proratedValue: 50 },
+      ],
+    },
+    {
+      description: 'should assign the full amount and 100% percentage to a single item regardless of its weight',
+      amountToDistribute: 100,
+      items: [weightedItemExample({ id: 1, weight: 7 })],
+      precision: 6,
+      expected: [{ id: 1, weight: 7, percentage: 1, proratedValue: 100 }],
+    },
+    {
+      description: 'should assign zero percentage and proratedValue to an item with weight 0 without crashing',
+      amountToDistribute: 100,
+      items: [weightedItemExample({ id: 1, weight: 0 }), weightedItemExample({ id: 2, weight: 10 })],
+      precision: 6,
+      expected: [
+        { id: 1, weight: 0, percentage: 0, proratedValue: 0 },
+        { id: 2, weight: 10, percentage: 1, proratedValue: 100 },
+      ],
+    },
+    {
+      description:
+        'should distribute a non-round amount across three equal weights with the last item absorbing the remainder',
+      amountToDistribute: 10,
+      items: [
+        weightedItemExample({ id: 1, weight: 1 }),
+        weightedItemExample({ id: 2, weight: 1 }),
+        weightedItemExample({ id: 3, weight: 1 }),
+      ],
+      precision: 6,
+      expected: [
+        { id: 1, weight: 1, percentage: 0.3333333333333333, proratedValue: 3.333333 },
+        { id: 2, weight: 1, percentage: 0.3333333333333333, proratedValue: 3.333333 },
+        { id: 3, weight: 1, percentage: 0.3333333333333334, proratedValue: 3.333334 },
+      ],
+    },
+    {
+      description:
+        'should reclaim rounding excess from the largest rounding errors instead of leaving the last item negative',
+      amountToDistribute: 0.05,
+      items: [
+        weightedItemExample({ id: 1, weight: 1 }),
+        weightedItemExample({ id: 2, weight: 1 }),
+        weightedItemExample({ id: 3, weight: 0 }),
+      ],
+      precision: 2,
+      expected: [
+        { id: 1, weight: 1, percentage: 0.5, proratedValue: 0.02 },
+        { id: 2, weight: 1, percentage: 0.5, proratedValue: 0.03 },
+        { id: 3, weight: 0, percentage: 0, proratedValue: 0 },
+      ],
+    },
+    {
+      description: 'should respect a custom precision',
+      amountToDistribute: 1,
+      items: [weightedItemExample({ id: 1, weight: 1 }), weightedItemExample({ id: 2, weight: 2 })],
+      precision: 4,
+      expected: [
+        { id: 1, weight: 1, percentage: 0.3333333333333333, proratedValue: 0.3333 },
+        { id: 2, weight: 2, percentage: 0.6666666666666667, proratedValue: 0.6667 },
+      ],
+    },
+  ])('given valid inputs', ({ description, amountToDistribute, items, precision, expected }) => {
+    it(description, () => {
+      const result = proratePennies({ amountToDistribute, items, precision });
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe.each([
+    {
+      description: 'should return an empty array when the items array is empty',
+      amountToDistribute: 100,
+      items: [],
+    },
+    {
+      description: 'should return an empty array when an item has a negative weight',
+      amountToDistribute: 100,
+      items: [weightedItemExample({ id: 1, weight: -1 })],
+    },
+    {
+      description: 'should return an empty array when the total weight of the items is zero',
+      amountToDistribute: 100,
+      items: [weightedItemExample({ id: 1, weight: 0 }), weightedItemExample({ id: 2, weight: 0 })],
+    },
+  ])('given invalid inputs with throwOnError disabled', ({ description, amountToDistribute, items }) => {
+    it(description, () => {
+      expect(proratePennies({ amountToDistribute, items })).toEqual([]);
+    });
+  });
+
+  describe.each([
+    {
+      description: 'should throw a BadRequestError when the items array is empty',
+      amountToDistribute: 100,
+      items: [],
+      expectedErrorMessage: 'At least one allocation target is required.',
+    },
+    {
+      description: 'should throw a BadRequestError when an item has a negative weight',
+      amountToDistribute: 100,
+      items: [weightedItemExample({ id: 1, weight: -1 })],
+      expectedErrorMessage: 'Allocation weights must not be negative.',
+    },
+    {
+      description: 'should throw a BadRequestError when the total weight of the items is zero',
+      amountToDistribute: 100,
+      items: [weightedItemExample({ id: 1, weight: 0 }), weightedItemExample({ id: 2, weight: 0 })],
+      expectedErrorMessage: 'The total weight of the allocation targets must be greater than 0.',
+    },
+  ])(
+    'given invalid inputs with throwOnError enabled',
+    ({ description, amountToDistribute, items, expectedErrorMessage }) => {
+      it(description, () => {
+        expect(() => proratePennies({ amountToDistribute, items, throwOnError: true })).toThrow(BadRequestError);
+        expect(() => proratePennies({ amountToDistribute, items, throwOnError: true })).toThrow(expectedErrorMessage);
+      });
+    },
+  );
+
+  describe.each([
+    {
+      description: 'should never produce a negative proratedValue even when rounding pushes the last item below zero',
+      amountToDistribute: 0.05,
+      items: [
+        weightedItemExample({ id: 1, weight: 1 }),
+        weightedItemExample({ id: 2, weight: 1 }),
+        weightedItemExample({ id: 3, weight: 0 }),
+      ],
+      precision: 2,
+    },
+    {
+      description: 'should guarantee the sum of proratedValue equals amountToDistribute for uneven weights',
+      amountToDistribute: 33,
+      items: Array.from({ length: 10 }, (_, index) => weightedItemExample({ id: index + 1, weight: index + 1 })),
+      precision: 2,
+    },
+    {
+      description: 'should give the last item all the dust when the amount has fewer units than items',
+      amountToDistribute: 0.02,
+      items: Array.from({ length: 100 }, (_, index) => weightedItemExample({ id: index + 1, weight: 1 })),
+      precision: 2,
+    },
+  ])('given inputs that produce rounding pressure', ({ description, amountToDistribute, items, precision }) => {
+    it(description, () => {
+      const result = proratePennies({ amountToDistribute, items, precision });
+      expect(result.every((item) => item.proratedValue >= 0)).toBe(true);
+      expect(result.reduce((sum, item) => sum + item.proratedValue, 0)).toBeCloseTo(amountToDistribute, 10);
+      expect(result.reduce((sum, item) => sum + item.percentage, 0)).toBeCloseTo(1, 10);
     });
   });
 });
