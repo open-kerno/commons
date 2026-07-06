@@ -19,6 +19,7 @@
     "test": "LOG_SILENT=true jest --coverage --logHeapUsage"
   },
   "dependencies": {
+    "currency.js": "^2.0.4",
     "es-toolkit": "^1.49.0",
     "flat": "^6.0.1",
     "logfmt": "^1.4.0",
