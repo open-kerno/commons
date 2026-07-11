@@ -4,7 +4,7 @@ Thank you for your interest in contributing to `@open-kerno/commons`.
 
 ## Reporting Issues
 
-- Search [existing issues](https://github.com/open-kerno/commons/issues) before opening a new one.
+- Search [existing issues](https://github.com/open-kerno/commons-ts/issues) before opening a new one.
 - Include a clear title, a short description of the problem, and steps to reproduce it.
 - If possible, add the expected vs. actual behavior.
 
@@ -37,4 +37,4 @@ Thank you for your interest in contributing to `@open-kerno/commons`.
 
 ## Questions
 
-For general questions, open a [GitHub Discussion](https://github.com/open-kerno/commons/discussions) or an issue.
+For general questions, open a [GitHub Discussion](https://github.com/open-kerno/commons-ts/discussions) or an issue.

@@ -19,7 +19,7 @@ const config: Config = {
   url: 'https://open-kerno.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/commons/',
+  baseUrl: '/commons-ts/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -44,7 +44,7 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/open-kerno/commons/tree/main/website/',
+          editUrl: 'https://github.com/open-kerno/commons-ts/tree/main/website/',
         },
         blog: {
           showReadingTime: true,
@@ -54,7 +54,7 @@ const config: Config = {
           },
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/open-kerno/commons/tree/main/website/',
+          editUrl: 'https://github.com/open-kerno/commons-ts/tree/main/website/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -124,7 +124,7 @@ const config: Config = {
           items: [
             {
               label: 'GitHub Issues',
-              href: 'https://github.com/open-kerno/commons/issues',
+              href: 'https://github.com/open-kerno/commons-ts/issues',
             },
             {
               label: 'npm',
