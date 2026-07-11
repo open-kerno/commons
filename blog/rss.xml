@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
     <channel>
         <title>Open Kerno Commons Blog</title>
-        <link>https://open-kerno.github.io/commons/blog</link>
+        <link>https://open-kerno.github.io/commons-ts/blog</link>
         <description>Open Kerno Commons Blog</description>
         <lastBuildDate>Sat, 04 Jul 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
@@ -10,15 +10,15 @@
         <language>en</language>
         <item>
             <title><![CDATA[Welcome to Open Kerno Commons]]></title>
-            <link>https://open-kerno.github.io/commons/blog/hello-world</link>
-            <guid>https://open-kerno.github.io/commons/blog/hello-world</guid>
+            <link>https://open-kerno.github.io/commons-ts/blog/hello-world</link>
+            <guid>https://open-kerno.github.io/commons-ts/blog/hello-world</guid>
             <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
             <description><![CDATA[We are happy to introduce @open-kerno/commons — a shared TypeScript utility library for Node.js services.]]></description>
             <content:encoded><![CDATA[<p>We are happy to introduce <code>@open-kerno/commons</code> — a shared TypeScript utility library for Node.js services.</p>
 <!-- -->
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="what-is-it">What is it?<a href="https://open-kerno.github.io/commons/blog/hello-world#what-is-it" class="hash-link" aria-label="Direct link to What is it?" title="Direct link to What is it?" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="what-is-it">What is it?<a href="https://open-kerno.github.io/commons-ts/blog/hello-world#what-is-it" class="hash-link" aria-label="Direct link to What is it?" title="Direct link to What is it?" translate="no">​</a></h2>
 <p><code>@open-kerno/commons</code> is a collection of well-tested, typed modules designed to solve common problems across backend services. Instead of copying the same utilities from project to project, you can install this package and start using them right away.</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="what-is-included">What is included?<a href="https://open-kerno.github.io/commons/blog/hello-world#what-is-included" class="hash-link" aria-label="Direct link to What is included?" title="Direct link to What is included?" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="what-is-included">What is included?<a href="https://open-kerno.github.io/commons-ts/blog/hello-world#what-is-included" class="hash-link" aria-label="Direct link to What is included?" title="Direct link to What is included?" translate="no">​</a></h2>
 <ul>
 <li class=""><strong>HTTP</strong> — <code>HttpStatusCode</code> and <code>HttpMethod</code> enums covering all standard codes and methods.</li>
 <li class=""><strong>Errors</strong> — Typed error classes (<code>ServerError</code>, <code>BadRequestError</code>, <code>InternalServerError</code>, <code>DatabaseConnectionError</code>) with HTTP status codes and optional error payloads.</li>
@@ -28,9 +28,9 @@
 <li class=""><strong>Infrastructure</strong> — A PostgreSQL connection pool wrapper with session and transaction helpers.</li>
 <li class=""><strong>Object</strong> — <code>encodeJSON</code> for safe JSON parsing with typed fallbacks.</li>
 </ul>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="getting-started">Getting started<a href="https://open-kerno.github.io/commons/blog/hello-world#getting-started" class="hash-link" aria-label="Direct link to Getting started" title="Direct link to Getting started" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="getting-started">Getting started<a href="https://open-kerno.github.io/commons-ts/blog/hello-world#getting-started" class="hash-link" aria-label="Direct link to Getting started" title="Direct link to Getting started" translate="no">​</a></h2>
 <div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#393A34"><span class="token plain">npm install @open-kerno/commons</span><br></div></code></pre></div></div>
-<p>Check the <a class="" href="https://open-kerno.github.io/commons/docs">documentation</a> for the full API reference.</p>]]></content:encoded>
+<p>Check the <a class="" href="https://open-kerno.github.io/commons-ts/docs">documentation</a> for the full API reference.</p>]]></content:encoded>
             <category>release</category>
             <category>typescript</category>
             <category>nodejs</category>

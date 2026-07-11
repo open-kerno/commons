@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([["1833"],{5513(e){e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Welcome to Open Kerno Commons","permalink":"/commons/blog/hello-world","unlisted":false,"date":"2026-07-04T00:00:00.000Z"}]}')}}]);
