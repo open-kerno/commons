@@ -12,7 +12,7 @@
 
 `@open-kerno/commons` is a TypeScript utility library that provides shared building blocks for backend Node.js services. It includes structured logging, HTTP error classes, HTTP status codes, math and distribution helpers, collection utilities, sorting, object utilities, and a PostgreSQL connection wrapper.
 
-> **Full API documentation:** [open-kerno.github.io/commons-ts](https://open-kerno.github.io/commons-ts)
+> **Full API documentation:** [open-kerno.github.io/commons-ts](https://open-kerno.github.io/commons-site/docs/commons-ts/intro)
 
 ## Installation
 
