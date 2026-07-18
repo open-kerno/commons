@@ -1,7 +1,7 @@
 import { Context, Unleash } from 'unleash-client';
 
 import logger from '../../logger';
-import { FeatureContext, FeatureProvider, GetConfigParams } from '../types';
+import { FeatureContext, FeatureProvider, GetConfigParams, IsEnabledParams } from '../types';
 
 const log = logger('unleash-provider');
 
@@ -66,8 +66,8 @@ export const unleashProvider = (config: UnleashProviderConfig): FeatureProvider 
         });
       });
     },
-    isEnabled: (flagName: string, ctx: FeatureContext | undefined) => {
-      return client?.isEnabled(flagName, mapFeatureContextToUnleashContext(ctx)) ?? false;
+    isEnabled: ({ flag, context }: IsEnabledParams) => {
+      return client?.isEnabled(flag, mapFeatureContextToUnleashContext(context)) ?? false;
     },
     shutdown: () => {
       client?.destroy();

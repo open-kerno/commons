@@ -1,5 +1,5 @@
 import logger from '../logger';
-import { FeatureContext, FeatureManagementService, FeatureProvider, GetServiceConfigParams } from './types';
+import { FeatureManagementService, FeatureProvider, GetServiceConfigParams, IsEnabledParams } from './types';
 
 export type { MockProviderConfig } from './providers/mock';
 export { mockProvider } from './providers/mock';
@@ -13,6 +13,7 @@ export type {
   FeatureProvider,
   GetConfigParams,
   GetServiceConfigParams,
+  IsEnabledParams,
 } from './types';
 
 const log = logger('feature-management');
@@ -37,12 +38,12 @@ export const featureManagement = async (provider: FeatureProvider): Promise<Feat
         return fallback;
       }
     },
-    isEnabled: (flagName: string, context?: FeatureContext) => {
+    isEnabled: ({ flag, context }: IsEnabledParams) => {
       if (!ready) return false;
       try {
-        return provider.isEnabled(flagName, context);
+        return provider.isEnabled({ flag, context });
       } catch (error) {
-        log.error('FLAG_EVALUATION_FAILED', error, { flagName });
+        log.error('FLAG_EVALUATION_FAILED', error, { flag });
         return false;
       }
     },

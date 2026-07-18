@@ -12,9 +12,14 @@ export interface GetServiceConfigParams<T> {
   key: string;
 }
 
+export interface IsEnabledParams {
+  context?: FeatureContext;
+  flag: string;
+}
+
 export interface FeatureManagementService {
   getConfig<T>(params: GetServiceConfigParams<T>): T | undefined;
-  isEnabled(flag: string, context?: FeatureContext): boolean;
+  isEnabled(params: IsEnabledParams): boolean;
   shutdown(): Promise<void>;
 }
 
@@ -27,6 +32,6 @@ export interface GetConfigParams<T> {
 export interface FeatureProvider {
   getConfig<T>(params: GetConfigParams<T>): T;
   initialize(): Promise<void>;
-  isEnabled(flag: string, context?: FeatureContext): boolean;
+  isEnabled(params: IsEnabledParams): boolean;
   shutdown(): Promise<void>;
 }

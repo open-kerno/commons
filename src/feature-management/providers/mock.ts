@@ -1,4 +1,4 @@
-import { FeatureProvider, GetConfigParams } from '../types';
+import { FeatureProvider, GetConfigParams, IsEnabledParams } from '../types';
 
 export interface MockProviderConfig {
   configs?: Record<string, any>;
@@ -13,8 +13,8 @@ export const mockProvider = (config: MockProviderConfig = {}): FeatureProvider =
     initialize: () => {
       return Promise.resolve();
     },
-    isEnabled: (flagName: string) => {
-      return config.flags?.[flagName] ?? false;
+    isEnabled: ({ flag }: IsEnabledParams) => {
+      return config.flags?.[flag] ?? false;
     },
     shutdown: () => {
       return Promise.resolve();
