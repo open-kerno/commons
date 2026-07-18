@@ -1,7 +1,7 @@
 import { Context, Unleash } from 'unleash-client';
 
 import logger from '../../logger';
-import { FeatureContext, FeatureProvider } from '../types';
+import { FeatureContext, FeatureProvider, GetConfigParams } from '../types';
 
 const log = logger('unleash-provider');
 
@@ -25,10 +25,10 @@ export const unleashProvider = (config: UnleashProviderConfig): FeatureProvider 
   let client: Unleash | null = null;
 
   return {
-    getConfig: <T>(key: string, ctx: FeatureContext | undefined, fallback: T): T => {
+    getConfig: <T>({ key, context, fallback }: GetConfigParams<T>): T => {
       if (!client) return fallback;
 
-      const variant = client.getVariant(key, mapFeatureContextToUnleashContext(ctx));
+      const variant = client.getVariant(key, mapFeatureContextToUnleashContext(context));
 
       if (variant?.enabled && variant.payload) {
         const { type, value } = variant.payload;

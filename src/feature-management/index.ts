@@ -7,7 +7,7 @@ export type { StatsigProviderConfig } from './providers/statsig';
 export { statsigProvider } from './providers/statsig';
 export type { UnleashProviderConfig } from './providers/unleash';
 export { unleashProvider } from './providers/unleash';
-export type { FeatureContext, FeatureManagementService, FeatureProvider } from './types';
+export type { FeatureContext, FeatureManagementService, FeatureProvider, GetConfigParams } from './types';
 
 const log = logger('feature-management');
 
@@ -25,7 +25,7 @@ export const featureManagement = async (provider: FeatureProvider): Promise<Feat
     getConfig: <T>(key: string, context?: FeatureContext, fallback?: T): T | undefined => {
       if (!ready) return fallback;
       try {
-        return provider.getConfig(key, context, fallback as T);
+        return provider.getConfig({ key, context, fallback: fallback as T });
       } catch (error) {
         log.error('CONFIG_RETRIEVAL_FAILED', error, { key });
         return fallback;

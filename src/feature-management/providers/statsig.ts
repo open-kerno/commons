@@ -1,6 +1,6 @@
 import Statsig, { StatsigUser } from 'statsig-node';
 
-import { FeatureContext, FeatureProvider } from '../types';
+import { FeatureContext, FeatureProvider, GetConfigParams } from '../types';
 
 export interface StatsigProviderConfig {
   environment?: string;
@@ -16,9 +16,9 @@ const mapContextToStatsigUser = (ctx?: FeatureContext): StatsigUser => ({
 
 export const statsigProvider = (config: StatsigProviderConfig): FeatureProvider => {
   return {
-    getConfig: <T>(key: string, ctx: FeatureContext | undefined, fallback: T): T => {
+    getConfig: <T>({ key, context, fallback }: GetConfigParams<T>): T => {
       try {
-        return (Statsig.getConfigSync(mapContextToStatsigUser(ctx), key).value as T) ?? fallback;
+        return (Statsig.getConfigSync(mapContextToStatsigUser(context), key).value as T) ?? fallback;
       } catch {
         return fallback;
       }

@@ -1,4 +1,4 @@
-import { FeatureContext, FeatureProvider } from '../types';
+import { FeatureProvider, GetConfigParams } from '../types';
 
 export interface MockProviderConfig {
   configs?: Record<string, any>;
@@ -7,7 +7,7 @@ export interface MockProviderConfig {
 
 export const mockProvider = (config: MockProviderConfig = {}): FeatureProvider => {
   return {
-    getConfig: <T>(key: string, _context: FeatureContext | undefined, fallback: T): T => {
+    getConfig: <T>({ key, fallback }: GetConfigParams<T>): T => {
       return (config.configs?.[key] as T) ?? fallback;
     },
     initialize: () => {

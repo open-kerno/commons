@@ -12,8 +12,14 @@ export interface FeatureManagementService {
   shutdown(): Promise<void>;
 }
 
+export interface GetConfigParams<T> {
+  key: string;
+  fallback: T;
+  context?: FeatureContext;
+}
+
 export interface FeatureProvider {
-  getConfig<T>(key: string, context: FeatureContext | undefined, fallback: T): T;
+  getConfig<T>(params: GetConfigParams<T>): T;
   initialize(): Promise<void>;
   isEnabled(flag: string, context?: FeatureContext): boolean;
   shutdown(): Promise<void>;
