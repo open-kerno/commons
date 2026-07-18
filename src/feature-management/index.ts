@@ -17,8 +17,8 @@ export const featureManagement = async (provider: FeatureProvider): Promise<Feat
   try {
     await provider.initialize();
     ready = true;
-  } catch (err) {
-    log.error('INITIALIZATION_FAILED', err as Error);
+  } catch (error) {
+    log.error('INITIALIZATION_FAILED', error);
   }
 
   return {
@@ -26,17 +26,17 @@ export const featureManagement = async (provider: FeatureProvider): Promise<Feat
       if (!ready) return fallback;
       try {
         return provider.getConfig(key, context, fallback as T);
-      } catch (err) {
-        log.error('CONFIG_RETRIEVAL_FAILED', err as Error, { key });
+      } catch (error) {
+        log.error('CONFIG_RETRIEVAL_FAILED', error, { key });
         return fallback;
       }
     },
-    isEnabled: (flag, context) => {
+    isEnabled: (flagName: string, context?: FeatureContext) => {
       if (!ready) return false;
       try {
-        return provider.isEnabled(flag, context);
-      } catch (err) {
-        log.error('FLAG_EVALUATION_FAILED', err as Error, { flag });
+        return provider.isEnabled(flagName, context);
+      } catch (error) {
+        log.error('FLAG_EVALUATION_FAILED', error, { flagName });
         return false;
       }
     },
