@@ -105,23 +105,24 @@ describe('featureManagement.areEnabled', () => {
   });
 
   it('passes context to each flag evaluation', async () => {
-    const calls: { flag: string; userId?: string }[] = [];
+    let capturedContext: { flags: string[]; userId?: string } | undefined;
     const provider: FeatureProvider = {
-      areEnabled: ({ flags }) => flags.map(() => false),
       getConfig: <T>({ fallback }: { key: string; fallback: T }) => fallback,
       initialize: () => Promise.resolve(),
       isEnabled: ({ flag, context }) => {
-        calls.push({ flag, userId: context?.userId });
+        void flag;
+        void context;
         return true;
+      },
+      areEnabled: ({ flags, context }) => {
+        capturedContext = { flags, userId: context?.userId };
+        return flags.map(() => true);
       },
       shutdown: () => Promise.resolve(),
     };
     const svc = await featureManagement(provider);
     svc.areEnabled({ flags: ['a', 'b'], context: { userId: 'u-1' } });
-    expect(calls).toEqual([
-      { flag: 'a', userId: 'u-1' },
-      { flag: 'b', userId: 'u-1' },
-    ]);
+    expect(capturedContext).toEqual({ flags: ['a', 'b'], userId: 'u-1' });
   });
 });
 
