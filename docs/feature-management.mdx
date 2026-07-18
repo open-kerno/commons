@@ -41,9 +41,20 @@ A `FeatureManagementService` object:
 
 ```ts
 interface FeatureManagementService {
-  isEnabled(flag: string, context?: FeatureContext): boolean;
-  getConfig<T>(key: string, context?: FeatureContext, fallback?: T): T | undefined;
+  isEnabled(params: IsEnabledParams): boolean;
+  getConfig<T>(params: GetServiceConfigParams<T>): T | undefined;
   shutdown(): Promise<void>;
+}
+
+interface IsEnabledParams {
+  flag: string;
+  context?: FeatureContext;
+}
+
+interface GetServiceConfigParams<T> {
+  key: string;
+  context?: FeatureContext;
+  fallback?: T;
 }
 ```
 
@@ -60,7 +71,7 @@ const svc = await featureManagement(
   }),
 );
 
-if (svc.isEnabled('new-checkout')) {
+if (svc.isEnabled({ flag: 'new-checkout' })) {
   // run new checkout flow
 }
 
@@ -87,15 +98,15 @@ interface FeatureContext {
 
 ## Methods
 
-### `svc.isEnabled(flag, context?)`
+### `svc.isEnabled(params)`
 
 Evaluates whether a feature flag is enabled. Always synchronous — evaluated against the locally cached ruleset downloaded during initialization. Returns `false` on any error or if the flag does not exist.
 
 ```ts
-const enabled = svc.isEnabled('dark-mode', { userId: 'u-123' });
+const enabled = svc.isEnabled({ flag: 'dark-mode', context: { userId: 'u-123' } });
 ```
 
-### `svc.getConfig<T>(key, context?, fallback?)`
+### `svc.getConfig<T>(params)`
 
 Retrieves a dynamic configuration value. Returns `fallback` (or `undefined`) if the key does not exist, the provider is not ready, or parsing fails.
 
@@ -105,11 +116,11 @@ interface CheckoutConfig {
   currency: string;
 }
 
-const config = svc.getConfig<CheckoutConfig>(
-  'checkout-config',
-  { userId: 'u-123' },
-  { maxItems: 10, currency: 'USD' },
-);
+const config = svc.getConfig<CheckoutConfig>({
+  key: 'checkout-config',
+  context: { userId: 'u-123' },
+  fallback: { maxItems: 10, currency: 'USD' },
+});
 ```
 
 ### `svc.shutdown()`
@@ -198,15 +209,20 @@ const provider = mockProvider({
 Implement the `FeatureProvider` interface to integrate any other feature flag system:
 
 ```ts
-import { FeatureContext, FeatureProvider } from '@open-kerno/commons/feature-management';
+import {
+  FeatureContext,
+  FeatureProvider,
+  GetConfigParams,
+  IsEnabledParams,
+} from '@open-kerno/commons/feature-management';
 
 const myProvider: FeatureProvider = {
   initialize: async () => {
     await mySDK.connect();
   },
-  isEnabled: (flag, context) => mySDK.isEnabled(flag, context?.userId),
-  getConfig: <T>(key, context, fallback: T): T => {
-    return mySDK.getConfig(key) as T ?? fallback;
+  isEnabled: ({ flag, context }: IsEnabledParams) => mySDK.isEnabled(flag, context?.userId),
+  getConfig: <T>({ key, fallback }: GetConfigParams<T>): T => {
+    return (mySDK.getConfig(key) as T) ?? fallback;
   },
   shutdown: async () => {
     await mySDK.disconnect();
