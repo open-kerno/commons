@@ -1,6 +1,9 @@
 import { Context, Unleash } from 'unleash-client';
 
+import logger from '../../logger';
 import { FeatureContext, FeatureProvider } from '../types';
+
+const log = logger('unleash-provider');
 
 export interface UnleashProviderConfig {
   appName: string;
@@ -24,17 +27,20 @@ export const unleashProvider = (config: UnleashProviderConfig): FeatureProvider 
   return {
     getConfig: <T>(key: string, ctx: FeatureContext | undefined, fallback: T): T => {
       if (!client) return fallback;
+
       const variant = client.getVariant(key, mapFeatureContextToUnleashContext(ctx));
+
       if (variant?.enabled && variant.payload) {
         const { type, value } = variant.payload;
         try {
           if (type === 'json') return JSON.parse(value) as T;
-          if (type === 'string') return value as unknown as T;
-          if (type === 'number') return Number(value) as unknown as T;
-        } catch {
-          // fall through to return fallback
+          if (type === 'string') return String(value) as T;
+          if (type === 'number') return Number(value) as T;
+        } catch (error) {
+          log.error('Failed to parse Unleash variant payload', error, { key });
         }
       }
+
       return fallback;
     },
     initialize: () => {
@@ -60,8 +66,8 @@ export const unleashProvider = (config: UnleashProviderConfig): FeatureProvider 
         });
       });
     },
-    isEnabled: (flag, ctx) => {
-      return client?.isEnabled(flag, mapFeatureContextToUnleashContext(ctx)) ?? false;
+    isEnabled: (flagName: string, ctx: FeatureContext | undefined) => {
+      return client?.isEnabled(flagName, mapFeatureContextToUnleashContext(ctx)) ?? false;
     },
     shutdown: () => {
       client?.destroy();
