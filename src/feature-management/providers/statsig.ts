@@ -18,7 +18,8 @@ export const statsigProvider = (config: StatsigProviderConfig): FeatureProvider 
   return {
     getConfig: <T>({ key, context, fallback }: GetConfigParams<T>): T => {
       try {
-        return (Statsig.getConfigSync(mapContextToStatsigUser(context), key).value as T) ?? fallback;
+        const statsigUser = mapContextToStatsigUser(context);
+        return (Statsig.getConfigSync(statsigUser, key).value as T) ?? fallback;
       } catch {
         return fallback;
       }
@@ -30,7 +31,8 @@ export const statsigProvider = (config: StatsigProviderConfig): FeatureProvider 
     },
     isEnabled: ({ flag, context }: IsEnabledParams) => {
       try {
-        return Statsig.checkGateSync(mapContextToStatsigUser(context), flag);
+        const statsigUser = mapContextToStatsigUser(context);
+        return Statsig.checkGateSync(statsigUser, flag);
       } catch {
         return false;
       }

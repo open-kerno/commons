@@ -1,3 +1,4 @@
+import { encodeJSON } from 'src/object';
 import { Context, Unleash } from 'unleash-client';
 
 import logger from '../../logger';
@@ -33,7 +34,7 @@ export const unleashProvider = (config: UnleashProviderConfig): FeatureProvider 
       if (variant?.enabled && variant.payload) {
         const { type, value } = variant.payload;
         try {
-          if (type === 'json') return JSON.parse(value) as T;
+          if (type === 'json') return encodeJSON<T>({ jsonString: value, fallback }) as T;
           if (type === 'string') return String(value) as T;
           if (type === 'number') return Number(value) as T;
         } catch (error) {
