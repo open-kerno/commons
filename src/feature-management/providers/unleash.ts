@@ -10,7 +10,7 @@ export interface UnleashProviderConfig {
   url: string;
 }
 
-const mapContext = (ctx?: FeatureContext): Context => ({
+const mapFeatureContextToUnleashContext = (ctx?: FeatureContext): Context => ({
   environment: ctx?.environment,
   properties: ctx?.properties,
   remoteAddress: ctx?.ip,
@@ -24,7 +24,7 @@ export const unleashProvider = (config: UnleashProviderConfig): FeatureProvider 
   return {
     getConfig: <T>(key: string, ctx: FeatureContext | undefined, fallback: T): T => {
       if (!client) return fallback;
-      const variant = client.getVariant(key, mapContext(ctx));
+      const variant = client.getVariant(key, mapFeatureContextToUnleashContext(ctx));
       if (variant?.enabled && variant.payload) {
         const { type, value } = variant.payload;
         try {
@@ -37,8 +37,8 @@ export const unleashProvider = (config: UnleashProviderConfig): FeatureProvider 
       }
       return fallback;
     },
-    initialize: () =>
-      new Promise<void>((resolve, reject) => {
+    initialize: () => {
+      return new Promise<void>((resolve, reject) => {
         client = new Unleash({
           appName: config.appName,
           customHeaders: { Authorization: config.token },
@@ -46,17 +46,23 @@ export const unleashProvider = (config: UnleashProviderConfig): FeatureProvider 
           refreshInterval: config.refreshInterval ?? 15,
           url: config.url,
         });
+
         const timer = setTimeout(() => reject(new Error('Unleash init timeout')), 30_000);
+
         client.once('ready', () => {
           clearTimeout(timer);
           resolve();
         });
+
         client.once('error', (err: Error) => {
           clearTimeout(timer);
           reject(err);
         });
-      }),
-    isEnabled: (flag, ctx) => client?.isEnabled(flag, mapContext(ctx)) ?? false,
+      });
+    },
+    isEnabled: (flag, ctx) => {
+      return client?.isEnabled(flag, mapFeatureContextToUnleashContext(ctx)) ?? false;
+    },
     shutdown: () => {
       client?.destroy();
       return Promise.resolve();
