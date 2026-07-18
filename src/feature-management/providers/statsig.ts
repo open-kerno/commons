@@ -39,7 +39,7 @@ export const statsigProvider = (config: StatsigProviderConfig): FeatureProvider 
     },
     areEnabled: ({ flags, context }: AreEnabledParams): boolean[] => {
       const statsigUser = mapContextToStatsigUser(context);
-      return flags.map((flag) => {
+      return flags.map((flag: string) => {
         try {
           return Statsig.checkGateSync(statsigUser, flag);
         } catch {

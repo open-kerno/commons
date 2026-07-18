@@ -56,14 +56,12 @@ export const featureManagement = async (provider: FeatureProvider): Promise<Feat
     },
     areEnabled: ({ flags, context }: AreEnabledParams): boolean[] => {
       if (!ready) return flags.map(() => false);
-      return flags.map((flag) => {
-        try {
-          return provider.isEnabled({ flag, context });
-        } catch (error) {
-          log.error('FLAG_EVALUATION_FAILED', error, { flag });
-          return false;
-        }
-      });
+      try {
+        return provider.areEnabled({ flags, context });
+      } catch (error) {
+        log.error('FLAGS_EVALUATION_FAILED', error, { flags });
+        return flags.map(() => false);
+      }
     },
     shutdown: () => provider.shutdown(),
   };

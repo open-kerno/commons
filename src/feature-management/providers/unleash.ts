@@ -68,10 +68,13 @@ export const unleashProvider = (config: UnleashProviderConfig): FeatureProvider 
       });
     },
     isEnabled: ({ flag, context }: IsEnabledParams) => {
-      return client?.isEnabled(flag, mapFeatureContextToUnleashContext(context)) ?? false;
+      const unleashContext = mapFeatureContextToUnleashContext(context);
+      return client?.isEnabled(flag, unleashContext) ?? false;
     },
     areEnabled: ({ flags, context }: AreEnabledParams): boolean[] => {
-      return flags.map((flag) => client?.isEnabled(flag, mapFeatureContextToUnleashContext(context)) ?? false);
+      const unleashContext = mapFeatureContextToUnleashContext(context);
+
+      return flags.map((flag: string) => client?.isEnabled(flag, unleashContext) ?? false);
     },
     shutdown: () => {
       client?.destroy();
