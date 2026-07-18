@@ -11,7 +11,6 @@ export type { FeatureContext, FeatureManagementService, FeatureProvider } from '
 
 const log = logger('feature-management');
 
-// ponytail: ready=false persists after failed init; background SDK recovery not propagated — add FeatureProvider.isReady() if needed
 export const featureManagement = async (provider: FeatureProvider): Promise<FeatureManagementService> => {
   let ready = false;
 
