@@ -1,0 +1,251 @@
+---
+sidebar_position: 10
+---
+
+# Feature Management
+
+The `feature-management` module provides a vendor-agnostic service for evaluating feature flags and retrieving dynamic configurations. It ships built-in adapters for [Unleash](https://www.getunleash.io/) and [Statsig](https://statsig.com/), and a `mockProvider` for unit testing.
+
+## Import
+
+```ts
+import {
+  featureManagement,
+  unleashProvider,
+  statsigProvider,
+  mockProvider,
+} from '@open-kerno/commons/feature-management';
+```
+
+---
+
+## `featureManagement(provider)`
+
+An async factory that initializes the given provider and returns a ready-to-use service instance. If initialization fails, the service stays functional and returns safe defaults for all calls until the underlying SDK recovers.
+
+### Signature
+
+```ts
+async function featureManagement(provider: FeatureProvider): Promise<FeatureManagementService>
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `provider` | `FeatureProvider` | An initialized provider adapter (Unleash, Statsig, Mock, or custom) |
+
+### Returns
+
+A `FeatureManagementService` object:
+
+```ts
+interface FeatureManagementService {
+  isEnabled(flag: string, context?: FeatureContext): boolean;
+  getConfig<T>(key: string, context?: FeatureContext, fallback?: T): T | undefined;
+  shutdown(): Promise<void>;
+}
+```
+
+### Example
+
+```ts
+import { featureManagement, unleashProvider } from '@open-kerno/commons/feature-management';
+
+const svc = await featureManagement(
+  unleashProvider({
+    url: 'https://unleash.example.com/api',
+    token: process.env.UNLEASH_TOKEN,
+    appName: 'my-service',
+  }),
+);
+
+if (svc.isEnabled('new-checkout')) {
+  // run new checkout flow
+}
+
+await svc.shutdown();
+```
+
+---
+
+## `FeatureContext`
+
+A standardized context object passed to flag and config evaluations. Each provider adapter maps it to its SDK-specific format.
+
+```ts
+interface FeatureContext {
+  userId?: string;
+  sessionId?: string;
+  ip?: string;
+  environment?: string;
+  properties?: Record<string, string>;
+}
+```
+
+---
+
+## Methods
+
+### `svc.isEnabled(flag, context?)`
+
+Evaluates whether a feature flag is enabled. Always synchronous — evaluated against the locally cached ruleset downloaded during initialization. Returns `false` on any error or if the flag does not exist.
+
+```ts
+const enabled = svc.isEnabled('dark-mode', { userId: 'u-123' });
+```
+
+### `svc.getConfig<T>(key, context?, fallback?)`
+
+Retrieves a dynamic configuration value. Returns `fallback` (or `undefined`) if the key does not exist, the provider is not ready, or parsing fails.
+
+```ts
+interface CheckoutConfig {
+  maxItems: number;
+  currency: string;
+}
+
+const config = svc.getConfig<CheckoutConfig>(
+  'checkout-config',
+  { userId: 'u-123' },
+  { maxItems: 10, currency: 'USD' },
+);
+```
+
+### `svc.shutdown()`
+
+Gracefully tears down the underlying SDK — stops background polling, flushes telemetry, and closes open connections. Call this when your application is shutting down.
+
+```ts
+process.on('SIGTERM', async () => {
+  await svc.shutdown();
+  process.exit(0);
+});
+```
+
+---
+
+## Providers
+
+### `unleashProvider(config)`
+
+Adapter for [Unleash](https://www.getunleash.io/). Resolves when the SDK has downloaded its initial ruleset. Supports JSON, string, and number variant payloads for `getConfig`.
+
+```ts
+import { unleashProvider } from '@open-kerno/commons/feature-management';
+
+const provider = unleashProvider({
+  url: 'https://unleash.example.com/api',
+  token: 'my-server-token',
+  appName: 'my-service',
+  environment: 'production',  // default: 'development'
+  refreshInterval: 15,        // seconds, default: 15
+});
+```
+
+| Option | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `url` | `string` | Yes | — | Unleash API base URL |
+| `token` | `string` | Yes | — | Server-side API token |
+| `appName` | `string` | Yes | — | Application name sent in telemetry |
+| `environment` | `string` | No | `'development'` | Active environment |
+| `refreshInterval` | `number` | No | `15` | Polling interval in seconds |
+
+---
+
+### `statsigProvider(config)`
+
+Adapter for [Statsig](https://statsig.com/). Downloads all gates and dynamic configs during initialization; all subsequent evaluations are local. Maps `getConfig` to Statsig Dynamic Configs.
+
+```ts
+import { statsigProvider } from '@open-kerno/commons/feature-management';
+
+const provider = statsigProvider({
+  serverSecret: process.env.STATSIG_SERVER_SECRET,
+  environment: 'production', // default: 'development'
+});
+```
+
+| Option | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `serverSecret` | `string` | Yes | — | Statsig server SDK secret key |
+| `environment` | `string` | No | `'development'` | Environment tier passed to Statsig |
+
+---
+
+### `mockProvider(config?)`
+
+An in-memory provider for unit tests. Initialization always resolves immediately. Accepts a static map of flags and configs; any key not in the map returns the provided fallback.
+
+```ts
+import { mockProvider } from '@open-kerno/commons/feature-management';
+
+const provider = mockProvider({
+  flags: { 'dark-mode': true, 'beta-feature': false },
+  configs: { 'checkout-config': { maxItems: 5, currency: 'EUR' } },
+});
+```
+
+| Option | Type | Description |
+|---|---|---|
+| `flags` | `Record<string, boolean>` | Static flag states |
+| `configs` | `Record<string, any>` | Static config values |
+
+---
+
+## Writing a custom provider
+
+Implement the `FeatureProvider` interface to integrate any other feature flag system:
+
+```ts
+import { FeatureContext, FeatureProvider } from '@open-kerno/commons/feature-management';
+
+const myProvider: FeatureProvider = {
+  initialize: async () => {
+    await mySDK.connect();
+  },
+  isEnabled: (flag, context) => mySDK.isEnabled(flag, context?.userId),
+  getConfig: <T>(key, context, fallback: T): T => {
+    return mySDK.getConfig(key) as T ?? fallback;
+  },
+  shutdown: async () => {
+    await mySDK.disconnect();
+  },
+};
+
+const svc = await featureManagement(myProvider);
+```
+
+---
+
+## Testing with `mockProvider`
+
+Inject `mockProvider` in tests to avoid network calls and control flag states deterministically.
+
+```ts
+import { featureManagement, mockProvider } from '@open-kerno/commons/feature-management';
+
+describe('checkout', () => {
+  it('uses new flow when feature flag is on', async () => {
+    const svc = await featureManagement(
+      mockProvider({ flags: { 'new-checkout': true } }),
+    );
+
+    const result = await runCheckout(svc);
+    expect(result.flow).toBe('new');
+  });
+});
+```
+
+---
+
+## Error handling
+
+All evaluations are fail-safe — they never throw. Errors are logged internally via the `feature-management` logger tag and a safe default is returned instead.
+
+| Scenario | `isEnabled` returns | `getConfig` returns |
+|---|---|---|
+| Provider init failed | `false` | `fallback` |
+| Flag / key not found | `false` | `fallback` |
+| Provider throws during evaluation | `false` | `fallback` |
+| Provider not yet ready | `false` | `fallback` |
