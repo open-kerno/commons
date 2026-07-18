@@ -1,5 +1,11 @@
 import logger from '../logger';
-import { FeatureManagementService, FeatureProvider, GetServiceConfigParams, IsEnabledParams } from './types';
+import {
+  AreEnabledParams,
+  FeatureManagementService,
+  FeatureProvider,
+  GetServiceConfigParams,
+  IsEnabledParams,
+} from './types';
 
 export type { MockProviderConfig } from './providers/mock';
 export { mockProvider } from './providers/mock';
@@ -8,6 +14,7 @@ export { statsigProvider } from './providers/statsig';
 export type { UnleashProviderConfig } from './providers/unleash';
 export { unleashProvider } from './providers/unleash';
 export type {
+  AreEnabledParams,
   FeatureContext,
   FeatureManagementService,
   FeatureProvider,
@@ -46,6 +53,17 @@ export const featureManagement = async (provider: FeatureProvider): Promise<Feat
         log.error('FLAG_EVALUATION_FAILED', error, { flag });
         return false;
       }
+    },
+    areEnabled: ({ flags, context }: AreEnabledParams): boolean[] => {
+      if (!ready) return flags.map(() => false);
+      return flags.map((flag) => {
+        try {
+          return provider.isEnabled({ flag, context });
+        } catch (error) {
+          log.error('FLAG_EVALUATION_FAILED', error, { flag });
+          return false;
+        }
+      });
     },
     shutdown: () => provider.shutdown(),
   };

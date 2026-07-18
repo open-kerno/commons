@@ -41,9 +41,15 @@ A `FeatureManagementService` object:
 
 ```ts
 interface FeatureManagementService {
+  areEnabled(params: AreEnabledParams): boolean[];
   isEnabled(params: IsEnabledParams): boolean;
   getConfig<T>(params: GetServiceConfigParams<T>): T | undefined;
   shutdown(): Promise<void>;
+}
+
+interface AreEnabledParams {
+  flags: string[];
+  context?: FeatureContext;
 }
 
 interface IsEnabledParams {
@@ -104,6 +110,17 @@ Evaluates whether a feature flag is enabled. Always synchronous — evaluated ag
 
 ```ts
 const enabled = svc.isEnabled({ flag: 'dark-mode', context: { userId: 'u-123' } });
+```
+
+### `svc.areEnabled(params)`
+
+Evaluates multiple feature flags in a single call. Returns a `boolean[]` in the same order as the input `flags` array. Each entry follows the same fail-safe semantics as `isEnabled` — returns `false` on error or if the flag does not exist.
+
+```ts
+const [darkMode, betaCheckout, newNav] = svc.areEnabled({
+  flags: ['dark-mode', 'beta-checkout', 'new-nav'],
+  context: { userId: 'u-123' },
+});
 ```
 
 ### `svc.getConfig<T>(params)`
@@ -259,9 +276,9 @@ describe('checkout', () => {
 
 All evaluations are fail-safe — they never throw. Errors are logged internally via the `feature-management` logger tag and a safe default is returned instead.
 
-| Scenario | `isEnabled` returns | `getConfig` returns |
-|---|---|---|
-| Provider init failed | `false` | `fallback` |
-| Flag / key not found | `false` | `fallback` |
-| Provider throws during evaluation | `false` | `fallback` |
-| Provider not yet ready | `false` | `fallback` |
+| Scenario | `isEnabled` returns | `areEnabled` returns | `getConfig` returns |
+|---|---|---|---|
+| Provider init failed | `false` | `[false, ...]` | `fallback` |
+| Flag / key not found | `false` | `false` per entry | `fallback` |
+| Provider throws during evaluation | `false` | `false` per entry | `fallback` |
+| Provider not yet ready | `false` | `[false, ...]` | `fallback` |

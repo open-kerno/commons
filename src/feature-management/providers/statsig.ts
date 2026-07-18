@@ -1,6 +1,6 @@
 import Statsig, { StatsigUser } from 'statsig-node';
 
-import { FeatureContext, FeatureProvider, GetConfigParams, IsEnabledParams } from '../types';
+import { AreEnabledParams, FeatureContext, FeatureProvider, GetConfigParams, IsEnabledParams } from '../types';
 
 export interface StatsigProviderConfig {
   environment?: string;
@@ -36,6 +36,16 @@ export const statsigProvider = (config: StatsigProviderConfig): FeatureProvider 
       } catch {
         return false;
       }
+    },
+    areEnabled: ({ flags, context }: AreEnabledParams): boolean[] => {
+      const statsigUser = mapContextToStatsigUser(context);
+      return flags.map((flag) => {
+        try {
+          return Statsig.checkGateSync(statsigUser, flag);
+        } catch {
+          return false;
+        }
+      });
     },
     shutdown: () => {
       Statsig.shutdown();
